@@ -383,16 +383,17 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                 fl = physical(founder_fl_list)
             else:
                 fl = {
-                    'uchastie': 'Учредители организации в иных действующих юридических'
-                                ' лицах участия не принимают'
-                }
+                        'uchastie': 'Учредители организации в иных действующих юридических'
+                                    ' лицах участия не принимают'
+                    }
             svod = osn | fl
             sendmail(word_foo(svod, type_zakl), adress)
-            remove_data('data_json_files')
-            remove_data('data_emp')
-            remove_data('data_fl')
-            return 'Успешно'
-    except: return 'Сбой'
+            # remove_data('data_json_files')
+            # remove_data('data_emp')
+            # remove_data('data_fl')
+        return 'Успешно'
+    except:
+        return 'Сбой'
 
 
 

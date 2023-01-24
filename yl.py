@@ -1,5 +1,4 @@
 import json
-import locale
 import os
 
 from docxtpl import DocxTemplate
@@ -9,12 +8,6 @@ from ofdata_api import zapros_ogrn, zapros
 from fl_oop import physical
 from sendmail import sendmail
 
-
-
-locale.setlocale(
-    category=locale.LC_ALL,
-    locale="Russian"
-)
 
 found_dictonary = {}
 founder_fl_list = []
@@ -118,6 +111,7 @@ class Ul:
                 diskv_mng = manager_data['ДисквЛицо']
                 mass_mng = manager_data['МассРуковод']
                 un_uch_mng = list(set(sv_uchr_mng + sv_ruk_mng))
+                found_dictonary[inn_mng] = un_uch_mng
                 mng_list.append(f'{post_mng} {name_mng}, ИНН {inn_mng}')
         return mng_list
 
@@ -372,8 +366,8 @@ def remove_data(str_dir):
             os.remove(f'{str_dir}/{file_names}')
 
 def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и тип заключения (counter - контрагент; ekv - эквайринг, score - счет, employer - работодатель) и адрес эл. почты.
-    zapros(inn)
     try:
+        zapros(inn)
         orgs = instance(f'data_json_files//data_{inn}.json')
         osn = orgs.union_foo()
         if type_zakl == 'employer':
@@ -383,17 +377,17 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                 fl = physical(founder_fl_list)
             else:
                 fl = {
-                        'uchastie': 'Учредители организации в иных действующих юридических'
-                                    ' лицах участия не принимают'
-                    }
+                            'uchastie': 'Учредители организации в иных действующих юридических'
+                                        ' лицах участия не принимают'
+                        }
             svod = osn | fl
             sendmail(word_foo(svod, type_zakl), adress)
-            # remove_data('data_json_files')
-            # remove_data('data_emp')
-            # remove_data('data_fl')
+            remove_data('data_json_files')
+            remove_data('data_emp')
+            remove_data('data_fl')
         return 'Успешно'
-    except:
-        return 'Сбой'
+    except Exception as e:
+        return f'ОШИБКА: {str(e)}'
 
 
 

@@ -78,10 +78,10 @@ def ask_inn(message):
         if Task.forms == 'счет':
             Task.forms = 'score'
         send_txt = zakl(Task.inns, Task.forms, emails)
-        if send_txt == 'Сбой':
-            bot.send_message(chat_id, send_txt)
-        else:
+        if send_txt == 'Успешно':
             bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
+        else:
+            bot.send_message(chat_id, send_txt)
         Task.isRunning = False
 
 if __name__ == '__main__':

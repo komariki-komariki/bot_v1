@@ -105,7 +105,7 @@ def ask_inn(message):
         else:
             bot.send_message(chat_id, send_txt)
         Task.isRunning = False
-    if len(text) == 12:
+    elif len(text) == 12:
         Task.inns = text
         if Task.forms == 'работодатель':
             Task.forms = 'employer'

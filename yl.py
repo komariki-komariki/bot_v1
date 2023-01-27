@@ -7,7 +7,7 @@ from datetime import datetime
 from ofdata_api import zapros_ogrn, zapros
 from fl_oop import physical
 from sendmail import sendmail
-
+from fssp import fssp
 
 found_dictonary = {}
 founder_fl_list = []
@@ -421,8 +421,10 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
         zapros(inn)
         orgs = instance(f'data_json_files//data_{inn}.json')
         osn = orgs.union_foo()
+        sp = fssp(inn)
         if type_zakl == 'employer':
-            word_foo(orgs.union_foo(), type_zakl)
+            svod = osn | sp
+            word_foo(svod, type_zakl)
         if type_zakl == 'score' or 'counter' or 'ekv':
             if len(founder_fl_list) > 0:
                 fl = physical(founder_fl_list)
@@ -431,11 +433,12 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                             'uchastie': 'Учредители организации в иных действующих юридических'
                                         ' лицах участия не принимают'
                         }
-            svod = osn | fl
+            svod = osn | fl | sp
             sendmail(word_foo(svod, type_zakl), adress)
             remove_data('data_json_files')
             remove_data('data_emp')
             remove_data('data_fl')
+            remove_data('data_fssp')
         return 'Успешно'
     except Exception as e:
         return f'ОШИБКА: {str(e)}'

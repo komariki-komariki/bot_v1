@@ -38,7 +38,16 @@ def zapros_ip(inn):
     url = f'https://api.ofdata.ru/v2/entrepreneur?key={token_ofdata}&inn={inn}'
     response = requests.get(url).json()
     with open('logs/logs.txt', "a", encoding='1251') as log:
-        log.write(f"Запрос ФЛ по ИНН: {inn}\n{response['meta']}\n{datetime.datetime.now()}\n***\n")
+        log.write(f"Запрос предпринимателя по ИНН: {inn}\n{response['meta']}\n{datetime.datetime.now()}\n***\n")
     with open(f'data_ip//data_{inn}.json', 'w') as f:
+        json.dump(response, f)
+    return response
+
+def zapros_fssp(inn):
+    url = f'https://api.ofdata.ru/v2/enforcements?key={token_ofdata}&inn={inn}'
+    response = requests.get(url).json()
+    with open('logs/logs.txt', "a", encoding='1251') as log:
+        log.write(f"Запрос исполнительных производств по ИНН: {inn}\n{response['meta']}\n{datetime.datetime.now()}\n***\n")
+    with open(f'data_fssp//data_fssp_{inn}.json', 'w') as f:
         json.dump(response, f)
     return response

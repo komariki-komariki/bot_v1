@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-
+from entrepreneur import zakl_ip
 from tokens import telegram
 from yl import zakl
 
@@ -51,23 +51,45 @@ def ask_form(message):
     text = message.text.lower()
     if text in Task.names:
         Task.forms = text
-        msg = bot.send_message(chat_id, 'Какой ИНН')
+        msg = bot.send_message(chat_id, 'Какой ИНН?')
         bot.register_next_step_handler(msg, ask_inn)
     else:
         msg = bot.send_message(chat_id, 'Такое не умею')
         bot.register_next_step_handler(msg, ask_form)
         return
 
+# def ask_inn(message):
+#     emails = users_dict[str(message.from_user.id)][1]
+#     names = users_dict[str(message.from_user.id)][0]
+#     chat_id = message.chat.id
+#     text = message.text.lower()
+#     if len(text) != 10:
+#         msg = bot.send_message(chat_id, 'Введи корректный ИНН')
+#         bot.register_next_step_handler(msg, ask_inn)
+#         return
+#     else:
+#         Task.inns = text
+#         if Task.forms == 'работодатель':
+#             Task.forms = 'employer'
+#         if Task.forms == 'контрагент':
+#             Task.forms = 'counter'
+#         if Task.forms == 'эквайринг':
+#             Task.forms = 'ekv'
+#         if Task.forms == 'счет':
+#             Task.forms = 'score'
+#         send_txt = zakl(Task.inns, Task.forms, emails)
+#         if send_txt == 'Успешно':
+#             bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
+#         else:
+#             bot.send_message(chat_id, send_txt)
+#         Task.isRunning = False
+
 def ask_inn(message):
     emails = users_dict[str(message.from_user.id)][1]
     names = users_dict[str(message.from_user.id)][0]
     chat_id = message.chat.id
     text = message.text.lower()
-    if len(text) != 10:
-        msg = bot.send_message(chat_id, 'Введи корректный ИНН')
-        bot.register_next_step_handler(msg, ask_inn)
-        return
-    else:
+    if len(text) == 10:
         Task.inns = text
         if Task.forms == 'работодатель':
             Task.forms = 'employer'
@@ -83,6 +105,26 @@ def ask_inn(message):
         else:
             bot.send_message(chat_id, send_txt)
         Task.isRunning = False
+    if len(text) == 12:
+        Task.inns = text
+        if Task.forms == 'работодатель':
+            Task.forms = 'employer'
+        if Task.forms == 'контрагент':
+            Task.forms = 'counter'
+        if Task.forms == 'эквайринг':
+            Task.forms = 'ekv'
+        if Task.forms == 'счет':
+            Task.forms = 'score'
+        send_txt = zakl_ip(Task.inns, Task.forms, emails)
+        if send_txt == 'Успешно':
+            bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
+        else:
+            bot.send_message(chat_id, send_txt)
+        Task.isRunning = False
+    else:
+        msg = bot.send_message(chat_id, 'Введи корректный ИНН')
+        bot.register_next_step_handler(msg, ask_inn)
+        return
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)

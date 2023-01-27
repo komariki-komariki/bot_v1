@@ -96,6 +96,28 @@ class Ul:
             reg_holder.append(f'ОШИБКА: {str(e)}')
         return reg_holder
 
+    def nalogss(self):
+        nalogs_list = []
+        try:
+            if len(self.nalogs) == 0:
+                nalogs_list.append('Сведения отсутствуют')
+            else:
+                if len(self.nalogs['ОсобРежим']) > 0:
+                    nalogs_list.append(f'Применяется {"".join(self.nalogs["ОсобРежим"])}')
+                else:
+                    nalogs_list.append('Особый налоговый режим не применяется')
+                if len(self.nalogs['СведУпл']) > 0:
+                    for x in self.nalogs['СведУпл']:
+                        nalogs_list.append(f'\n{x["Наим"]}: {x["Сумма"]} рублей')
+                    nalogs_list.append(f'\nВсего уплачено: {self.nalogs["СумУпл"]} рублей')
+                    if self.nalogs['СумНедоим'] is None:
+                        nalogs_list.append('\nСведения о недоимках отсутствуют')
+                    else:
+                        nalogs_list.append(self.nalogs['СумНедоим'])
+            return nalogs_list
+        except Exception as e:
+            nalogs_list.append(f'ОШИБКА: {str(e)}')
+            return nalogs_list
 
     def manager_data(self):
         mng_list = []
@@ -357,6 +379,7 @@ class Ul:
                               'ifns': self.reg_fns['НаимОрг'],
                               'status': self.status['Наим'],
                               'today': str_date(today),
+                              'nalogs': "".join(self.nalogss()),
 
         }
         return summary_dictionary
@@ -421,7 +444,10 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
         zapros(inn)
         orgs = instance(f'data_json_files//data_{inn}.json')
         osn = orgs.union_foo()
-        sp = fssp(inn)
+        if len(inn) == 10:
+            sp = fssp(inn)
+        else:
+            sp = {'fssp': 'Автоматический запрос невозможен'}
         if type_zakl == 'employer':
             svod = osn | sp
             word_foo(svod, type_zakl)
@@ -430,19 +456,19 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                 fl = physical(founder_fl_list)
             else:
                 fl = {
-                            'uchastie': 'Учредители организации в иных действующих юридических'
-                                        ' лицах участия не принимают'
-                        }
-            svod = osn | fl | sp
-            sendmail(word_foo(svod, type_zakl), adress)
-            remove_data('data_json_files')
-            remove_data('data_emp')
-            remove_data('data_fl')
-            remove_data('data_fssp')
+                                'uchastie': 'Учредители организации в иных действующих юридических'
+                                            ' лицах участия не принимают'
+                            }
+        svod = osn | fl | sp
+        sendmail(word_foo(svod, type_zakl), adress)
+        # remove_data('data_json_files')
+        # remove_data('data_emp')
+        # remove_data('data_fl')
+        # remove_data('data_fssp')
         return 'Успешно'
     except Exception as e:
         return f'ОШИБКА: {str(e)}'
 
 
 
-
+zakl('7830000426', 'employer', 'komaroff.ilya.s@gmail.com')

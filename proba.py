@@ -1,28 +1,20 @@
-from ofdata_api import zapros
-from yl import instance
+from ofdata_api import zapros, Count
+import json
 from pprint import pprint
 
-a = instance('data_json_files/data_1435149030.json')
+zapros('7723683270')
+print(Count.ost)
+# with open('logs/logs.txt', 'r', encoding='1251') as f:
+#     a = readline(f)
 
-# pprint(a.nalogs)
+from collections import deque
 
-nalogs_list =[]
-if len(a.nalogs) == 0:
-    nalogs_list.append('Сведения отсутствуют')
-else:
-    if len(a.nalogs['ОсобРежим']) > 0:
-        nalogs_list.append(f'Применяется {"".join(a.nalogs["ОсобРежим"])}')
-    else:
-        nalogs_list.append('Особый налоговый режим не применяется')
-    if len(a.nalogs['СведУпл']) > 0:
-        for x in a.nalogs['СведУпл']:
-            nalogs_list.append(f'\n{x["Наим"]}: {x["Сумма"]} рублей')
-        nalogs_list.append(f'\nВсего уплачено: {a.nalogs["СумУпл"]} рублей')
-        if a.nalogs['СумНедоим'] is None:
-            nalogs_list.append('\nСведения о недоимках отсутствуют')
-        else:
-            nalogs_list.append(a.nalogs['СумНедоим'])
-print(nalogs_list)
+# with open('logs/logs.txt','r', encoding='UTF8') as file:
+#      last_line = file.readlines()[-1]
+#      print(last_line)
 
+# f_read = open('logs/logs.txt', "r")
+# last_line = f_read.readlines()[-1]
+# print(last_line)
 
 

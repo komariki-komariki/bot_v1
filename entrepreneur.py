@@ -12,6 +12,14 @@ from sendmail import sendmail
 #     pprint(json_file)
 
 
+def abr_name_fl(my_str):
+    name_list = my_str.split()
+    if len(name_list) == 3:
+        format_name = '{} {}.{}.'.format(name_list[0], name_list[1][0], name_list[2][0])
+        return format_name
+    else:
+        return my_str
+
 class Ip:
     def __init__(self, date_reg, inn, ogrnip, okato, okved, rmsp,
                  ifns, status, types, abr_types, name, lic, mass_manager,
@@ -98,8 +106,8 @@ class Ip:
         summary_dictionary = {'inn': self.inn,
                               'ogrn': self.ogrnip,
                               'full_name': f'{self.types} {self.name}',
-                              'abr_name': f'{self.abr_types} {self.name}',
-                              'legal_adress': 'сведения отсутствуют',
+                              'abr_name': f'{self.abr_types} {abr_name_fl(self.name)}',
+                              'legal_adress': 'СВЕДЕНИЯ ОТСУТСТВУЮТ',
                               'authorized_capital': capital,
                               'manager': f'{self.name}, ИНН {self.inn}',
                               'founders': f'{self.name}, ИНН {self.inn}',
@@ -115,6 +123,7 @@ class Ip:
                               'ifns': self.ifns['НаимОрг'],
                               'status': self.status['Наим'],
                               'today': str_date(today),
+                              'fssp': 'Автоматический запрос невозможен',
 
                               }
         return summary_dictionary
@@ -162,11 +171,5 @@ def zakl_ip(inn, type_zakl,adress): #Принимает 3 строки: инн �
     except Exception as e:
         return f'ОШИБКА: {str(e)}'
 
-
-# ip = instance_ip(f'data_ip//data_501206285115.json')
-# # print(ip.ip_fl())
-# print(ip.inn)
-
-# print(zakl_ip('521938262510', 'score','komaroff.ilya.s@gmail.com'))
 
 

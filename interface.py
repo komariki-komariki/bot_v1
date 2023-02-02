@@ -26,6 +26,6 @@ def interface():
     zakl(zapros['inn'], zapros['type'], 'komaroff.ilya.s@gmail.com')
     # os.remove(f'data_{inn}.json')
 
-interface()
+# interface()
 
 

@@ -1,5 +1,7 @@
 import json
+from datetime import datetime
 from ofdata_api import zapros_fssp
+
 
 def fssp(inn):
     try:
@@ -8,14 +10,14 @@ def fssp(inn):
             json_file = json.load(f)
             if json_file["data"]["ОбщКолич"] > 0:
                 return {
-                    'fssp': f'В отношении {json_file["company"]["НаимСокр"]} '
+                    'fssp': f'По состоянию на {datetime.now().strftime("%d.%m.%Y")} в отношении {json_file["company"]["НаимСокр"]} '
                             f'ведется {json_file["data"]["ОбщКолич"]}  '
                             f'исполнительных производств на общую сумму '
                             f'{json_file["data"]["ОбщСум"]} рублей'
                 }
             else:
                 return {
-                    'fssp': f'В отношении {json_file["company"]["НаимСокр"]} '
+                    'fssp': f'По состоянию на {datetime.now().strftime("%d.%m.%Y")} в отношении {json_file["company"]["НаимСокр"]} '
                             f'исполнительные производства не ведутся'
                 }
     except Exception as e:

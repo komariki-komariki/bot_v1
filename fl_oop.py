@@ -20,40 +20,52 @@ class Fl:
         my_list = []
         if len(self.founder) > 0:
             for i in self.founder:
-                if i['Статус'] == 'Действует':
+                if i['Статус'] == 'Не действует':
+                    pass
+                else:
                     ogrn = i['ОГРН']
                     inn = i['ИНН']
                     name = i['НаимПолн']
                     date_reg = i['ДатаРег']
                     legal_adress = i['ЮрАдрес']
                     okved = i['ОКВЭД']
-                    my_list.append(f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:{date_reg}\nВид деятельности: {okved}\nЮридический адрес: {legal_adress}')
+                    status = i['Статус']
+                    my_list.append(
+                        f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
+                        f'{date_reg}\nВид деятельности: {okved}\n'
+                        f'Юридический адрес: {legal_adress}\nСтатус: {status}')
         if len(self.mng) > 0:
             for x in self.mng:
-                if x['Статус'] == 'Действует':
+                if x['Статус'] == 'Не действует':
+                    pass
+                else:
                     ogrn = x['ОГРН']
                     inn = x['ИНН']
                     name = x['НаимПолн']
                     date_reg = x['ДатаРег']
                     legal_adress = x['ЮрАдрес']
                     okved = x['ОКВЭД']
+                    status = x['Статус']
                     my_list.append(
                         f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
                         f'{date_reg}\nВид деятельности: {okved}\n'
-                        f'Юридический адрес: {legal_adress}'
+                        f'Юридический адрес: {legal_adress}\nСтатус: {status}'
                     )
         if len(self.businessman) > 0:
             for y in self.businessman:
-                if y['Статус'] == 'Действующий':
+                if y['Статус'] == 'Недействующий':
+                    pass
+                else:
                     ogrn = y['ОГРНИП']
                     inn = y['ИНН']
                     date_reg = y['ДатаРег']
                     okved = y['ОКВЭД']
                     types = y['Тип']
                     name = y['ФИО']
+                    status = y['Статус']
                     my_list.append(
                     f'\n{types} {name}\nИНН: {inn} ОГРНИП: {ogrn}\nДата регистрации:'
-                    f'{date_reg}\nВид деятельности: {okved}\n')
+                    f'{date_reg}\nВид деятельности: {okved}\nСтатус: {status}')
         if  len(my_list) == 0:
             my_list.append(
                 f'\n{name} в действующих юридических лицах участие не '
@@ -64,7 +76,6 @@ class Fl:
         my_list = []
         my_list.append(f'\n{self.name} принимает участие в следующих организациях: {"".join(self.participation())}')
         return my_list
-
 
 def instance_fl(json_file):
     with open(json_file, 'r') as f:
@@ -89,5 +100,3 @@ def physical(my_list):
         fl_data = instance_fl(f'data_fl//data_{inn_fl}.json')
         sv.append("".join(fl_data.info_fl()))
     return {'uchastie': "\n".join(sv)}
-
-

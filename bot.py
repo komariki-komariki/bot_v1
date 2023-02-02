@@ -3,14 +3,17 @@ from telebot import types
 from entrepreneur import zakl_ip
 from tokens import telegram
 from yl import zakl
+from ofdata_api import Count
 
 
 
 TOKEN = telegram
 bot = telebot.TeleBot(TOKEN)
-users = [1787812736, 5042194140]
+users = [1787812736, 5042194140, 1194496297, 976949796]
 users_dict = {'1787812736': ['Илья Сергеевич', 'komaroff.ilya.s@gmail.com'],
               '5042194140': ['Константин Борисович', 'kostik201428@gmail.com'],
+              '1194496297': ['Вадим Юрьевич', 'zayats-vadim@mail.ru'],
+              '976949796': ['Алексей Васильевич', 'aleksej.kondrin@gmail.com'],
 
 }
 
@@ -58,32 +61,6 @@ def ask_form(message):
         bot.register_next_step_handler(msg, ask_form)
         return
 
-# def ask_inn(message):
-#     emails = users_dict[str(message.from_user.id)][1]
-#     names = users_dict[str(message.from_user.id)][0]
-#     chat_id = message.chat.id
-#     text = message.text.lower()
-#     if len(text) != 10:
-#         msg = bot.send_message(chat_id, 'Введи корректный ИНН')
-#         bot.register_next_step_handler(msg, ask_inn)
-#         return
-#     else:
-#         Task.inns = text
-#         if Task.forms == 'работодатель':
-#             Task.forms = 'employer'
-#         if Task.forms == 'контрагент':
-#             Task.forms = 'counter'
-#         if Task.forms == 'эквайринг':
-#             Task.forms = 'ekv'
-#         if Task.forms == 'счет':
-#             Task.forms = 'score'
-#         send_txt = zakl(Task.inns, Task.forms, emails)
-#         if send_txt == 'Успешно':
-#             bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
-#         else:
-#             bot.send_message(chat_id, send_txt)
-#         Task.isRunning = False
-
 def ask_inn(message):
     emails = users_dict[str(message.from_user.id)][1]
     names = users_dict[str(message.from_user.id)][0]
@@ -102,6 +79,7 @@ def ask_inn(message):
         send_txt = zakl(Task.inns, Task.forms, emails)
         if send_txt == 'Успешно':
             bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
+            bot.send_message(chat_id, Count.ost)
         else:
             bot.send_message(chat_id, send_txt)
         Task.isRunning = False
@@ -118,6 +96,7 @@ def ask_inn(message):
         send_txt = zakl_ip(Task.inns, Task.forms, emails)
         if send_txt == 'Успешно':
             bot.send_message(chat_id, f'{names}, все готово, письмо отправлено на {emails}')
+            bot.send_message(chat_id, Count.ost)
         else:
             bot.send_message(chat_id, send_txt)
         Task.isRunning = False

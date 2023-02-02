@@ -297,7 +297,10 @@ class Ul:
         try:
             if len(self.contacts) > 0:
                 for k, v in self.contacts.items():
-                    cont_list.append(f'{k}: {v}\n')
+                    if type(v) == list:
+                        cont_list.append(f'{k}: {"".join(v)}\n')
+                    else:
+                        cont_list.append(f'{k}: {v}\n')
             else:
                 cont_list.append('Контактные данные в ЕГРЮЛ отсутствуют')
         except Exception as e:
@@ -461,14 +464,17 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                             }
         svod = osn | fl | sp
         sendmail(word_foo(svod, type_zakl), adress)
-        # remove_data('data_json_files')
-        # remove_data('data_emp')
-        # remove_data('data_fl')
-        # remove_data('data_fssp')
+        remove_data('data_json_files')
+        remove_data('data_emp')
+        remove_data('data_fl')
+        remove_data('data_fssp')
+        remove_data('data_contracts')
+        founder_fl_list.clear()
+        found_dictonary.clear()
         return 'Успешно'
     except Exception as e:
         return f'ОШИБКА: {str(e)}'
 
 
 
-zakl('7830000426', 'employer', 'komaroff.ilya.s@gmail.com')
+# zakl('9703006098', 'score', 'komaroff.ilya.s@gmail.com')

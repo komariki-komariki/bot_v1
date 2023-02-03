@@ -18,63 +18,69 @@ class Fl:
 
     def participation(self):
         my_list = []
-        if len(self.founder) > 0:
-            for i in self.founder:
-                if i['Статус'] == 'Не действует':
-                    pass
-                else:
-                    ogrn = i['ОГРН']
-                    inn = i['ИНН']
-                    name = i['НаимПолн']
-                    date_reg = i['ДатаРег']
-                    legal_adress = i['ЮрАдрес']
-                    okved = i['ОКВЭД']
-                    status = i['Статус']
-                    my_list.append(
-                        f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
-                        f'{date_reg}\nВид деятельности: {okved}\n'
-                        f'Юридический адрес: {legal_adress}\nСтатус: {status}')
-        if len(self.mng) > 0:
-            for x in self.mng:
-                if x['Статус'] == 'Не действует':
-                    pass
-                else:
-                    ogrn = x['ОГРН']
-                    inn = x['ИНН']
-                    name = x['НаимПолн']
-                    date_reg = x['ДатаРег']
-                    legal_adress = x['ЮрАдрес']
-                    okved = x['ОКВЭД']
-                    status = x['Статус']
-                    my_list.append(
-                        f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
-                        f'{date_reg}\nВид деятельности: {okved}\n'
-                        f'Юридический адрес: {legal_adress}\nСтатус: {status}'
-                    )
-        if len(self.businessman) > 0:
-            for y in self.businessman:
-                if y['Статус'] == 'Недействующий':
-                    pass
-                else:
-                    ogrn = y['ОГРНИП']
-                    inn = y['ИНН']
-                    date_reg = y['ДатаРег']
-                    okved = y['ОКВЭД']
-                    types = y['Тип']
-                    name = y['ФИО']
-                    status = y['Статус']
-                    my_list.append(
-                    f'\n{types} {name}\nИНН: {inn} ОГРНИП: {ogrn}\nДата регистрации:'
-                    f'{date_reg}\nВид деятельности: {okved}\nСтатус: {status}')
-        if  len(my_list) == 0:
-            my_list.append(
-                f'\n{name} в действующих юридических лицах участие не '
-                f'принимает, в качестве индивидуального предпринимателя не зарегистрирован(а)')
+        try:
+            if len(self.founder) > 0:
+                for i in self.founder:
+                    if i['Статус'] == 'Не действует':
+                        pass
+                    else:
+                        ogrn = i['ОГРН']
+                        inn = i['ИНН']
+                        name = i['НаимПолн']
+                        date_reg = i['ДатаРег']
+                        legal_adress = i['ЮрАдрес']
+                        okved = i['ОКВЭД']
+                        status = i['Статус']
+                        my_list.append(
+                            f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
+                            f'{date_reg}\nВид деятельности: {okved}\n'
+                            f'Юридический адрес: {legal_adress}\nСтатус: {status}')
+            if len(self.mng) > 0:
+                for x in self.mng:
+                    if x['Статус'] == 'Не действует':
+                        pass
+                    else:
+                        ogrn = x['ОГРН']
+                        inn = x['ИНН']
+                        name = x['НаимПолн']
+                        date_reg = x['ДатаРег']
+                        legal_adress = x['ЮрАдрес']
+                        okved = x['ОКВЭД']
+                        status = x['Статус']
+                        my_list.append(
+                            f'\n{name}\nИНН: {inn} ОГРН: {ogrn}\nДата регистрации:'
+                            f'{date_reg}\nВид деятельности: {okved}\n'
+                            f'Юридический адрес: {legal_adress}\nСтатус: {status}'
+                        )
+            if len(self.businessman) > 0:
+                for y in self.businessman:
+                    if y['Статус'] == 'Недействующий':
+                        pass
+                    else:
+                        ogrn = y['ОГРНИП']
+                        inn = y['ИНН']
+                        date_reg = y['ДатаРег']
+                        okved = y['ОКВЭД']
+                        types = y['Тип']
+                        name = y['ФИО']
+                        status = y['Статус']
+                        my_list.append(
+                        f'\n{types} {name}\nИНН: {inn} ОГРНИП: {ogrn}\nДата регистрации:'
+                        f'{date_reg}\nВид деятельности: {okved}\nСтатус: {status}')
+            if  len(my_list) == 0:
+                my_list.append(
+                    f'\n{name} в действующих юридических лицах участие не '
+                    f'принимает, в качестве индивидуального предпринимателя не зарегистрирован(а)')
+        except Exception as e:
+            my_list.append(f'ОШИБКА: {str(e)}')
         return my_list
 
     def info_fl(self):
         my_list = []
-        my_list.append(f'\n{self.name} принимает участие в следующих организациях: {"".join(self.participation())}')
+        try:
+            my_list.append(f'\n{self.name} принимает участие в следующих организациях: {"".join(self.participation())}')
+        except Exception as e:
+            my_list.append(f'ОШИБКА: {str(e)}')
         return my_list
 
 def instance_fl(json_file):

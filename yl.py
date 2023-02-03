@@ -3,6 +3,7 @@ import os
 
 from docxtpl import DocxTemplate
 from datetime import datetime
+from pprint import pprint
 
 from ofdata_api import zapros_ogrn, zapros
 from fl_oop import physical
@@ -239,7 +240,30 @@ class Ul:
         return founders_list
 
     def founder_pif(self):
-        return list('Учредителем является ПИФ. Надо разбираться, такие компании еще не встречались')
+        founders_list = []
+        try:
+            for founder in self.founders['ПИФ']:  # Учредитель ЮЛ
+                if 'ОгрДоступ' in founder:
+                    restricted_access = founder['ОгрДоступ']
+                    if restricted_access == True:
+                        founders_list.append('Доступ к сведениям ограничен (ФЗ от '
+                                             '08.08.2001 г. №129-ФЗ "О государственной '
+                                             'регистрации юридических лиц и индивидуальных'
+                                             ' предпринимателей"')
+                else:
+                    name_founder = founder['Наим']
+                    uk = founder['УпрКом']
+                    inn_uk = founder['УпрКом']['ИНН']
+                    name_uk = founder['УпрКом']['НаимПолн']
+                    fraction_money = founder['Доля']['Номинал']
+                    fraction_percent = founder['Доля']['Процент']
+                    founders_list.append(
+                        f'\n- {name_founder} (Управляющая компания - {name_uk}, ИНН {inn_uk}) - ' \
+                        f'{fraction_percent}% в УК ({fraction_money} рублей);')
+        except Exception as e:
+            founders_list.append(f'ОШИБКА: {str(e)}')
+
+        return founders_list
 
     def founder_fl(self):
         founders_list = []
@@ -477,4 +501,8 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
 
 
 
-# zakl('9703006098', 'score', 'komaroff.ilya.s@gmail.com')
+# zakl('7716593315', 'score', 'komaroff.ilya.s@gmail.com')
+
+# a = instance('data_json_files/data_7716593315.json')
+
+# pprint(a.founder_pif())

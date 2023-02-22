@@ -30,4 +30,4 @@ def sendmail(file, adress):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
         print("Письмо отправлено")
-        os.remove(file)
+        # os.remove(file)

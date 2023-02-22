@@ -1666,7 +1666,7 @@ if len(a['data']) > 0:
     print(f'Баланс - {balance} рублей\nВыручка - {revenue} рублей\n'
           f'Чистая прибыль(убыток) - {profit} рублей')
     print(reporting_penultimate_year['2400'])
-    izm = profit/reporting_penultimate_year['2400']*100
+    izm = (profit/reporting_penultimate_year['2400']*100)-100
     print(izm)
 
   else:

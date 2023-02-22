@@ -44,6 +44,26 @@ class Ip:
         self.communication_by_founder = communication_by_founder
         self.communication_by_mng = communication_by_mng
 
+    def rsmp(self):
+        rmsp_list = []
+        date = datetime.strptime(self.rmsp["ДатаВкл"], '%Y-%m-%d')
+        try:
+            if len(self.rmsp) > 0:
+                rmsp_list.append(
+                    f'Имеется информация о включении {self.abr_types} {abr_name_fl(self.name)} в '
+                    f'Единый реестр субъектов малого и среднего '
+                    f'предпринимательства:\nТип: {self.rmsp["Кат"].capitalize()}; '
+                    f'Дата включения: {date.date().strftime("%d.%m.%Y")} г.')
+            else:
+                rmsp_list.append(
+                    f'Сведения о включении {self.abr_types} {abr_name_fl(self.name)} в '
+                    f'Единый реестр субъектов малого и среднего '
+                    f'предпринимательства отсутствуют')
+
+        except Exception as e:
+            rmsp_list.append(f'ОШИБКА: {str(e)}')
+        return rmsp_list
+
     def ip_fl(self):
         fl=[]
         try:
@@ -62,7 +82,7 @@ class Ip:
         try:
             if len(self.lic) == 0:  # Лицензии
                 permission_list.append(
-                    'В ЕГРЮЛ отсутствуют сведения о выданных лицензиях')
+                    'В ЕГРЮЛ отсутствуют сведения о выданных лицензиях.')
             else:
                 for lic in self.lic:
                     deyat = lic['ВидДеят']
@@ -72,7 +92,7 @@ class Ip:
                     permission_list.append(
                         f'\n- Лицензия № {numb} от {date.date().strftime("%d.%m.%Y")}'
                         f' г.;\nВыдавший орган: {org.upper()};'
-                        f'\nРазрешенные виды деятельности: {"; ".join(deyat)}')
+                        f'\nРазрешенные виды деятельности: {"; ".join(deyat)}.')
         except Exception as e:
             permission_list.append(f'ОШИБКА: {str(e)}')
         return permission_list
@@ -92,17 +112,17 @@ class Ip:
                 mass_founder = 'Нет'
             else:
                 mass_founder = 'Да'
-            result = f'Присутствие дисквалифицированных лиц в руководстве компании: СВЕДЕНИЙ НЕТ (разбираюсь)\n' \
-                     f'Массовый руководитель: {mass_manager}\n' \
-                     f'Массовых учредитель: {mass_founder}\n' \
-                     f'Недобросовестный поставщик: {unscrupulous_supplier}\n'
+            result = f'- Массовый руководитель: {mass_manager};\n' \
+                     f'- Массовых учредитель: {mass_founder};\n' \
+                     f'- Недобросовестный поставщик: {unscrupulous_supplier}.\n'
+
         except Exception as e:
             result = f'ОШИБКА: {str(e)}'
         return result
 
     def union_foo_ip(self):
         negative = self.negative()
-        capital = 'Уставный капитал отсутствует'
+        capital = 'Уставный капитал не предусмотрен организационно-правовой формой'
         summary_dictionary = {'inn': self.inn,
                               'ogrn': self.ogrnip,
                               'full_name': f'{self.types} {self.name}',
@@ -124,6 +144,7 @@ class Ip:
                               'status': self.status['Наим'],
                               'today': str_date(today),
                               'fssp': 'Автоматический запрос невозможен',
+                              'rsmp': "".join(self.rsmp()),
 
                               }
         return summary_dictionary
@@ -173,3 +194,4 @@ def zakl_ip(inn, type_zakl,adress): #Принимает 3 строки: инн �
 
 
 
+# zakl_ip('522512439672', 'employer', 'komaroff.ilya.s@gmail.com')

@@ -2,13 +2,14 @@ import json
 import os
 
 from docxtpl import DocxTemplate
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
 
 from ofdata_api import zapros_ogrn, zapros
 from fl_oop import physical
 from sendmail import sendmail
 from fssp import fssp
+from who import domain_data
 
 found_dictonary = {}
 founder_fl_list = []
@@ -83,6 +84,89 @@ class Ul:
         except Exception as e:
             average_dict.append(f'ОШИБКА: {str(e)}')
 
+    def days_reg(self):
+        try:
+            date = datetime.now()
+            date_2 = datetime.strptime(self.date_reg, '%Y-%m-%d')
+            days = date - date_2
+            delta = timedelta(days=547,
+                              seconds=0,
+                              microseconds=0,
+                              milliseconds=0,
+                              minutes=0,
+                              hours=0,
+                              weeks=0)
+            if days > delta:
+                return f'{days.days} дней (БОЛЕЕ 1,5 ЛЕТ)'
+            else:
+                return f'{days.days} дней (МЕНЕЕ 1,5 ЛЕТ)'
+        except Exception as e:
+            return f'ОШИБКА: {str(e)}'
+
+    def data_successors(self):
+        successors_list = []
+        try:
+            if len(self.legal_successor) > 0:
+                for data_successor in self.legal_successor:
+                    name_successor = data_successor['НаимПолн']
+                    inn_successor = data_successor['ИНН']
+                    successors_list.append(
+                        f'\n- {name_successor}, ИНН: {inn_successor}')
+            else:
+                successors_list.append(
+                    '\n- Сведения о правопредшественниках отсутствуют')
+        except Exception as e:
+            successors_list.append(f'ОШИБКА: {str(e)}')
+        return successors_list
+
+    def data_successors_2(self):
+        successors_list = []
+        try:
+            if len(self.legal_successor_2) > 0:
+                for data_successor in self.legal_successor_2:
+                    name_successor = data_successor['НаимПолн']
+                    inn_successor = data_successor['ИНН']
+                    successors_list.append(
+                        f'\n- {name_successor}, ИНН: {inn_successor}')
+            else:
+                successors_list.append(
+                    '\n- Сведения о правопреемниках отсутствуют')
+        except Exception as e:
+            successors_list.append(f'ОШИБКА: {str(e)}')
+        return successors_list
+
+    def rsmp(self):
+        rmsp_list = []
+        try:
+            if len(self.rmsp) > 0:
+                date = datetime.strptime(self.rmsp["ДатаВкл"], '%Y-%m-%d')
+                rmsp_list.append(
+                    f'Имеется информация о включении {self.abbreviated_name} в '
+                    f'Единый реестр субъектов малого и среднего '
+                    f'предпринимательства:\nТип: {self.rmsp["Кат"].capitalize()}; '
+                    f'Дата включения: {date.date().strftime("%d.%m.%Y")} г.')
+            else:
+                rmsp_list.append(
+                    f'Сведения о включении {self.abbreviated_name} в '
+                    f'Единый реестр субъектов малого и среднего '
+                    f'предпринимательства отсутствуют')
+
+        except Exception as e:
+            rmsp_list.append(f'ОШИБКА: {str(e)}')
+        return rmsp_list
+
+    def legal_adr(self):
+        adr_list = []
+        try:
+            if self.legal_adress['Недост'] == True:
+                adr_list.append(
+                    f'{self.legal_adress["АдресРФ"]}\n{self.legal_adress["НедостОпис"]}')
+            else:
+                adr_list.append(self.legal_adress['АдресРФ'])
+        except Exception as e:
+            adr_list.append(f'ОШИБКА: {str(e)}')
+        return adr_list
+
     def registry_holder(self):
         reg_holder = []
         try:
@@ -101,20 +185,20 @@ class Ul:
         nalogs_list = []
         try:
             if len(self.nalogs) == 0:
-                nalogs_list.append('Сведения отсутствуют')
+                nalogs_list.append('- Сведения отсутствуют')
             else:
                 if len(self.nalogs['ОсобРежим']) > 0:
-                    nalogs_list.append(f'Применяется {"".join(self.nalogs["ОсобРежим"])}')
+                    nalogs_list.append(f'- Применяется {"".join(self.nalogs["ОсобРежим"])}.')
                 else:
-                    nalogs_list.append('Особый налоговый режим не применяется')
+                    nalogs_list.append('- Особый налоговый режим не применяется.\n')
                 if len(self.nalogs['СведУпл']) > 0:
                     for x in self.nalogs['СведУпл']:
-                        nalogs_list.append(f'\n{x["Наим"]}: {x["Сумма"]} рублей')
-                    nalogs_list.append(f'\nВсего уплачено: {self.nalogs["СумУпл"]} рублей')
+                        nalogs_list.append(f'\n- {x["Наим"]}: {x["Сумма"]} рублей;')
+                    nalogs_list.append(f'\n- Всего уплачено: {self.nalogs["СумУпл"]} рублей.')
                     if self.nalogs['СумНедоим'] is None:
-                        nalogs_list.append('\nСведения о недоимках отсутствуют')
+                        nalogs_list.append('\n- Сведения о недоимках отсутствуют.')
                     else:
-                        nalogs_list.append(self.nalogs['СумНедоим'])
+                        nalogs_list.append(f'\n- Сумма недоимки: {self.nalogs["СумНедоим"]} рублей.')
             return nalogs_list
         except Exception as e:
             nalogs_list.append(f'ОШИБКА: {str(e)}')
@@ -308,10 +392,10 @@ class Ul:
                 mass_founder = 'Нет'
             else:
                 mass_founder = 'Да'
-            result = f'Присутствие дисквалифицированных лиц в руководстве компании: {disqualified_persons}\n' \
-                     f'Присутствие массовых руководителей: {mass_manager}\n' \
-                     f'Присутствие массовых учредителей: {mass_founder}\n' \
-                     f'Присутствие в перечне недобросовестных поставщиков: {unscrupulous_supplier}\n'
+            result = f'- Присутствие дисквалифицированных лиц в руководстве компании: {disqualified_persons};\n' \
+                     f'- Присутствие массовых руководителей: {mass_manager};\n' \
+                     f'- Присутствие массовых учредителей: {mass_founder};\n' \
+                     f'- Присутствие в перечне недобросовестных поставщиков: {unscrupulous_supplier}.\n'
         except Exception as e:
             result = f'ОШИБКА: {str(e)}'
         return result
@@ -331,6 +415,44 @@ class Ul:
             cont_list.append(f'ОШИБКА: {str(e)}')
         return cont_list
 
+    def site(self):
+        try:
+            if len(self.contacts) > 0:
+                if self.contacts['ВебСайт'] is None:
+                    data_site = 'Нет данных'
+                else:
+                    domain_info = domain_data(self.contacts['ВебСайт'])
+                    data_site = f'{self.contacts["ВебСайт"]}\n{"".join(domain_info)}'
+            return data_site
+        except Exception as e:
+            return f'ОШИБКА: {str(e)}'
+
+    def phone(self):
+        try:
+            if len(self.contacts) > 0:
+                if len(self.contacts['Тел']) > 0:
+                    phones = "; ".join(self.contacts['Тел'])
+                else:
+                    phones = 'Нет данных'
+            else:
+                phones = 'Нет данных'
+            return phones
+        except Exception as e:
+            return f'ОШИБКА: {str(e)}'
+
+    def el_post(self):
+        try:
+            if len(self.contacts) > 0:
+                if len(self.contacts['Емэйл']) > 0:
+                    mails = "; ".join(self.contacts['Емэйл'])
+                else:
+                    mails = 'Нет данных'
+            else:
+                mails = 'Нет данных'
+            return mails
+        except Exception as e:
+            return f'ОШИБКА: {str(e)}'
+
     def filialss(self):
         filials_list = []
         try:
@@ -340,7 +462,7 @@ class Ul:
                     fil_kpp = filial['КПП']
                     fil_name = filial['НаимПолн']
                     filials_list.append(
-                        f'\n- {fil_name} (КПП: {fil_kpp})\nрасположен по адресу: {fil_adress}')
+                        f'\n- {fil_name} (КПП: {fil_kpp})\nрасположен по адресу: {fil_adress}.')
             if 'Представ' in self.divisions.keys():  # Представительства
                 for preds in self.divisions['Представ']:
                     preds_name = preds['НаимПолн']
@@ -349,7 +471,7 @@ class Ul:
                         f'\n- Представительство "{preds_name}" (Страна: {preds_country})')
             else:
                 filials_list.append(
-                    'Согласно сведениям ЕГРЮЛ организация не имеет филиалов')
+                    'Согласно сведениям ЕГРЮЛ организация не имеет филиалов.')
         except Exception as e:
             filials_list.append(f'ОШИБКА: {str(e)}')
         return filials_list
@@ -359,7 +481,7 @@ class Ul:
         try:
             if len(self.license) == 0:  # Лицензии
                 permission_list.append(
-                    'В ЕГРЮЛ отсутствуют сведения о выданных лицензиях')
+                    'В ЕГРЮЛ отсутствуют сведения о выданных лицензиях.')
             else:
                 for lic in self.license:
                     deyat = lic['ВидДеят']
@@ -369,7 +491,7 @@ class Ul:
                     permission_list.append(
                         f'\n- Лицензия № {numb} от {date.date().strftime("%d.%m.%Y")}'
                         f' г.;\nВыдавший орган: {org.upper()};'
-                        f'\nРазрешенные виды деятельности: {"; ".join(deyat)}')
+                        f'\nРазрешенные виды деятельности: {"; ".join(deyat)}.')
         except Exception as e:
             permission_list.append(f'ОШИБКА: {str(e)}')
         return permission_list
@@ -391,7 +513,7 @@ class Ul:
                               'ogrn': self.ogrn,
                               'full_name': self.full_name,
                               'abr_name': self.abbreviated_name,
-                              'legal_adress': self.legal_adress['АдресРФ'],
+                              'legal_adress': "".join(self.legal_adr()),
                               'authorized_capital': capital,
                               'manager': "".join(director),
                               'founders': "".join(founders),
@@ -407,6 +529,13 @@ class Ul:
                               'status': self.status['Наим'],
                               'today': str_date(today),
                               'nalogs': "".join(self.nalogss()),
+                              'rsmp': "".join(self.rsmp()),
+                              'data_successors': "".join(self.data_successors()),
+                              'data_successors_2': "".join(self.data_successors_2()),
+                              'site': self.site(),
+                              'el_post': self.el_post(),
+                              'phones': self.phone(),
+                              'days_reg': self.days_reg(),
 
         }
         return summary_dictionary
@@ -488,11 +617,11 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                             }
         svod = osn | fl | sp
         sendmail(word_foo(svod, type_zakl), adress)
-        remove_data('data_json_files')
-        remove_data('data_emp')
-        remove_data('data_fl')
-        remove_data('data_fssp')
-        remove_data('data_contracts')
+        # remove_data('data_json_files')
+        # remove_data('data_emp')
+        # remove_data('data_fl')
+        # remove_data('data_fssp')
+        # remove_data('data_contracts')
         founder_fl_list.clear()
         found_dictonary.clear()
         return 'Успешно'
@@ -501,8 +630,9 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
 
 
 
-# zakl('7716593315', 'score', 'komaroff.ilya.s@gmail.com')
+# zakl('5505009406', 'employer', 'komaroff.ilya.s@gmail.com')
 
-# a = instance('data_json_files/data_7716593315.json')
 
-# pprint(a.founder_pif())
+# a = instance('data_json_files/data_7707822625.json')
+# #
+# print(a.nalogss())

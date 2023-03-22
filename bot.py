@@ -9,11 +9,13 @@ from ofdata_api import Count
 
 TOKEN = telegram
 bot = telebot.TeleBot(TOKEN)
-users = [1787812736, 5042194140, 1194496297, 976949796]
+users = [1787812736, 5042194140, 1194496297, 976949796, 1078681916]
 users_dict = {'1787812736': ['Илья Сергеевич', 'komaroff.ilya.s@gmail.com'],
               '5042194140': ['Константин Борисович', 'kostik201428@gmail.com'],
               '1194496297': ['Вадим Юрьевич', 'zayats-vadim@mail.ru'],
               '976949796': ['Алексей Васильевич', 'alexsej.kondrin@gmail.com'],
+              '1078681916': ['Андрей Сергеевич', 'asbaturin@mail.ru'],
+
 
 }
 

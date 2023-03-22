@@ -10,6 +10,7 @@ from fl_oop import physical
 from sendmail import sendmail
 from fssp import fssp
 from who import domain_data
+from financial_statements import fin_stat
 
 found_dictonary = {}
 founder_fl_list = []
@@ -279,6 +280,56 @@ class Ul:
 
     def founder_ul_in(self):
         founders_list = []
+        list_enemy = ['АВСТРАЛИЯ',
+                      'АВСТРИЯ',
+                      'АЛБАНИЯ',
+                      'АНДОРРА',
+                      'БАГАМЫ',
+                      'БЕЛЬГИЯ',
+                      'БОЛГАРИЯ',
+                      'ВЕЛИКОБРИТАНИЯ',
+                      'ВЕНГРИЯ',
+                      'ГЕРМАНИЯ',
+                      'ГРЕЦИЯ',
+                      'ДАНИЯ',
+                      'ИРЛАНДИЯ',
+                      'ИСЛАНДИЯ',
+                      'ИСПНИЯ',
+                      'ИТАЛИЯ',
+                      'КАНАДА',
+                      'КИПР',
+                      'ЛАТВИЯ',
+                      'ЛИТВА',
+                      'ЛИХТЕНШТЕЙН',
+                      'ЛЮКСЕМБУРГ',
+                      'МАЛЬТА',
+                      'МИКРОНЕЗИЯ',
+                      'МОНАКО',
+                      'НИДЕРЛАНДЫ',
+                      'НОВАЯ ЗЕЛАНДИЯ',
+                      'НОРВЕГИЯ',
+                      'ПОЛЬША',
+                      'ПОРТУГАЛИЯ',
+                      'РУМЫНИЯ',
+                      'САН-МАРИНО',
+                      'СЕВЕРНАЯ МАКЕДОНИЯ',
+                      'СИНГАПУР',
+                      'СЛОВАКИЯ',
+                      'СЛОВЕНИЯ',
+                      'США',
+                      'ТАЙВАНЬ',
+                      'УКРАИНА',
+                      'ФИНЛЯНДИЯ',
+                      'ФРАНЦИЯ',
+                      'ХОРВАТИЯ',
+                      'ЧЕРНОГОРИЯ',
+                      'ЧЕХИЯ',
+                      'ШВЕЙЦАРИЯ',
+                      'ШВЕЦИЯ',
+                      'ЭСТОНИЯ',
+                      'ЮЖНАЯ КОРЕЯ',
+                      'ЯПОНИЯ'
+                      ]
         try:
             for founder_foreigner in self.founders['ИнОрг']:  # Учредитель нерезидент
                 if 'ОгрДоступ' in founder_foreigner:
@@ -294,10 +345,14 @@ class Ul:
                     fraction_money = founder_foreigner['Доля']['Номинал']
                     fraction_percent = founder_foreigner['Доля']['Процент']
                     country = founder_foreigner['Страна']
+                    if country.upper() in list_enemy:
+                        enemy = f'Юридическое лицо, ' \
+                                f'зарегистрированное в соответствии с ' \
+                                f'законодательством недружественного государства ({country}).'
                     founders_list.append(
                         f'\n- {name_founder}, рег.№ {grn_founder}, '
                         f'{country} - {fraction_percent}% в '
-                        f'УК ({fraction_money} рублей);\n')
+                        f'УК ({fraction_money} рублей)\n{enemy};\n')
         except Exception as e:
             founders_list.append(f'ОШИБКА: {str(e)}')
         return founders_list
@@ -602,10 +657,12 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
         osn = orgs.union_foo()
         if len(inn) == 10:
             sp = fssp(inn)
+            fin = fin_stat(inn)
         else:
             sp = {'fssp': 'Автоматический запрос невозможен'}
+            fin = {'fin': 'Сведения отсутствуют'}
         if type_zakl == 'employer':
-            svod = osn | sp
+            svod = osn | sp | fin
             word_foo(svod, type_zakl)
         if type_zakl == 'score' or 'counter' or 'ekv':
             if len(founder_fl_list) > 0:
@@ -615,13 +672,14 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                                 'uchastie': 'Учредители организации в иных действующих юридических'
                                             ' лицах участия не принимают'
                             }
-        svod = osn | fl | sp
+        svod = osn | fl | sp | fin
         sendmail(word_foo(svod, type_zakl), adress)
-        # remove_data('data_json_files')
-        # remove_data('data_emp')
-        # remove_data('data_fl')
-        # remove_data('data_fssp')
-        # remove_data('data_contracts')
+        remove_data('data_json_files')
+        remove_data('data_emp')
+        remove_data('data_fl')
+        remove_data('data_fssp')
+        remove_data('data_contracts')
+        remove_data('data_fin')
         founder_fl_list.clear()
         found_dictonary.clear()
         return 'Успешно'
@@ -630,7 +688,7 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
 
 
 
-# zakl('5505009406', 'employer', 'komaroff.ilya.s@gmail.com')
+# zakl('7727749444', 'score', 'komaroff.ilya.s@gmail.com')
 
 
 # a = instance('data_json_files/data_7707822625.json')

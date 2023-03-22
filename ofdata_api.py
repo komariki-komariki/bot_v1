@@ -78,3 +78,15 @@ def zapros_gk(inn):
     with open(f'data_contracts//data_gk_{inn}.json', 'w') as f:
         json.dump(response, f)
     return response
+
+def zapros_fin(inn):
+    inn = inn
+    url = f'https://api.ofdata.ru/v2/finances?key={token_ofdata}&inn={inn}'
+    response = requests.get(url).json()
+    count = 100 - response['meta']['today_request_count']
+    Count.ost = f'осталось запросов: {str(count)}'
+    with open('logs/logs.txt', "a", encoding='UTF8') as log:
+        log.write(f"Запрос финансов по ИНН: {inn}. {response['meta']}. {datetime.datetime.now()}\n{count}")
+    with open(f'data_fin//data_{inn}.json', 'w') as f:
+        json.dump(response, f)
+    return response

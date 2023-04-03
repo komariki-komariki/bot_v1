@@ -11,10 +11,12 @@ from sendmail import sendmail
 from fssp import fssp
 from who import domain_data
 from financial_statements import fin_stat
+from proverki import pages
 
 found_dictonary = {}
 founder_fl_list = []
 today = datetime.now().strftime('%Y-%m-%d')
+
 
 def str_date(my_str):
     mounths = {
@@ -182,6 +184,33 @@ class Ul:
             reg_holder.append(f'ОШИБКА: {str(e)}')
         return reg_holder
 
+
+    def nalogss2(self):
+        nalogs_list = []
+        try:
+            if len(self.nalogs) == 0:
+                nalogs_list.append('- Сведения отсутствуют')
+            else:
+                if len(self.nalogs['ОсобРежим']) > 0:
+                    nalogs_list.append(f'- Применяется {"".join(self.nalogs["ОсобРежим"])}.')
+                else:
+                    nalogs_list.append('- Специальный налоговый режим не применяется.\n')
+                if len(self.nalogs['СведУпл']) > 0:
+                    for x in self.nalogs['СведУпл']:
+                        if x["Сумма"] != 0:
+                            nalogs_list.append(f'\n- {x["Наим"]}: {x["Сумма"]} рублей;')
+                    nalogs_list.append(f'\n- Всего уплачено: {self.nalogs["СумУпл"]} рублей.')
+                    if self.nalogs['СумНедоим'] is None:
+                        nalogs_list.append('\n- Сведения о недоимках отсутствуют.')
+                    else:
+                        nalogs_list.append(f'\n- Сумма недоимки: {self.nalogs["СумНедоим"]} рублей.')
+            return nalogs_list
+        except Exception as e:
+            nalogs_list.append(f'ОШИБКА: {str(e)}')
+            return nalogs_list
+
+
+
     def nalogss(self):
         nalogs_list = []
         try:
@@ -227,7 +256,11 @@ class Ul:
                     mass_mng = manager_data['МассРуковод']
                     un_uch_mng = list(set(sv_uchr_mng + sv_ruk_mng))
                     found_dictonary[inn_mng] = un_uch_mng
-                    mng_list.append(f'{post_mng} {name_mng}, ИНН {inn_mng}')
+                    if unreliability_mng is True:
+                        mng_list.append(f'{post_mng} {name_mng}, ИНН {inn_mng}'
+                                        f'\n{manager_data["НедостОпис"].upper()}')
+                    else:
+                        mng_list.append(f'{post_mng} {name_mng}, ИНН {inn_mng}')
         except Exception as e:
             mng_list.append(f'ОШИБКА: {str(e)}')
         return mng_list
@@ -583,7 +616,7 @@ class Ul:
                               'ifns': self.reg_fns['НаимОрг'],
                               'status': self.status['Наим'],
                               'today': str_date(today),
-                              'nalogs': "".join(self.nalogss()),
+                              'nalogs': "".join(self.nalogss2()),
                               'rsmp': "".join(self.rsmp()),
                               'data_successors': "".join(self.data_successors()),
                               'data_successors_2': "".join(self.data_successors_2()),
@@ -591,6 +624,7 @@ class Ul:
                               'el_post': self.el_post(),
                               'phones': self.phone(),
                               'days_reg': self.days_reg(),
+                              'today_count': datetime.now().strftime("%d.%m.%Y"),
 
         }
         return summary_dictionary
@@ -653,6 +687,7 @@ def remove_data(str_dir):
 def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и тип заключения (counter - контрагент; ekv - эквайринг, score - счет, employer - работодатель) и адрес эл. почты.
     try:
         zapros(inn)
+        prov = pages(inn)
         orgs = instance(f'data_json_files//data_{inn}.json')
         osn = orgs.union_foo()
         if len(inn) == 10:
@@ -662,7 +697,7 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
             sp = {'fssp': 'Автоматический запрос невозможен'}
             fin = {'fin': 'Сведения отсутствуют'}
         if type_zakl == 'employer':
-            svod = osn | sp | fin
+            svod = osn | sp | fin | prov
             word_foo(svod, type_zakl)
         if type_zakl == 'score' or 'counter' or 'ekv':
             if len(founder_fl_list) > 0:
@@ -672,7 +707,8 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                                 'uchastie': 'Учредители организации в иных действующих юридических'
                                             ' лицах участия не принимают'
                             }
-        svod = osn | fl | sp | fin
+        svod = osn | fl | sp | fin | prov
+        # word_foo(svod, type_zakl)
         sendmail(word_foo(svod, type_zakl), adress)
         remove_data('data_json_files')
         remove_data('data_emp')
@@ -688,9 +724,9 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
 
 
 
-# zakl('7727749444', 'score', 'komaroff.ilya.s@gmail.com')
-
-
-# a = instance('data_json_files/data_7707822625.json')
-# #
-# print(a.nalogss())
+# zakl('5262351728', 'employer', 'komaroff.ilya.s@gmail.com')
+# zakl('6025040052', 'employer', 'adr')
+# zapros('5262351728')
+# a = instance('data_json_files/data_5262351728.json')
+# # #
+# pprint(a.nalogss2())

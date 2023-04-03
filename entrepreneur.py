@@ -5,6 +5,7 @@ from datetime import datetime
 from yl import str_date,today, word_foo, remove_data
 from ofdata_api import zapros_ip
 from sendmail import sendmail
+from proverki import pages
 
 
 # with open('data_ip/data_501206285115.json', 'r', encoding='UTF8') as f:
@@ -145,6 +146,7 @@ class Ip:
                               'today': str_date(today),
                               'fssp': 'Автоматический запрос невозможен',
                               'rsmp': "".join(self.rsmp()),
+                              'today_count': datetime.now().strftime("%d.%m.%Y")
 
                               }
         return summary_dictionary
@@ -177,13 +179,14 @@ def instance_ip(json_file):
 def zakl_ip(inn, type_zakl,adress): #Принимает 3 строки: инн и тип заключения (counter - контрагент; ekv - эквайринг, score - счет, employer - работодатель) и адрес эл. почты.
     try:
         zapros_ip(inn)
+        prov = pages(inn)
         ip = instance_ip(f'data_ip//data_{inn}.json')
         osn = ip.union_foo_ip()
         if type_zakl == 'employer':
             word_foo(ip.union_foo_ip(), type_zakl)
         if type_zakl == 'score' or 'counter' or 'ekv':
             fl = ip.ip_fl()
-            svod = osn | fl
+            svod = osn | fl | prov
             sendmail(word_foo(svod, type_zakl), adress)
             remove_data('data_ip')
             remove_data('data_emp')

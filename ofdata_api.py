@@ -90,3 +90,25 @@ def zapros_fin(inn):
     with open(f'data_fin//data_{inn}.json', 'w') as f:
         json.dump(response, f)
     return response
+
+def zapros_pr(inn):
+    inn = inn
+    page = 1
+    url = f'https://api.ofdata.ru/v2/inspections?key={token_ofdata}&inn={inn}&sort=-date'
+    response = requests.get(url).json()
+    count = 100 - response['meta']['today_request_count']
+    Count.ost = f'осталось запросов: {str(count)}'
+    with open(f'data_pr//data_pr_{inn}_page_1.json', 'w') as f:
+        json.dump(response, f)
+        if response['data']['СтрВсего'] > 1:
+            for pages in range(response['data']['СтрВсего']-1):
+                page += 1
+                url = f'https://api.ofdata.ru/v2/inspections?key={token_ofdata}&inn={inn}&sort=-date&page={page}'
+                response = requests.get(url).json()
+                count = 100 - response['meta']['today_request_count']
+                Count.ost = f'осталось запросов: {str(count)}'
+                with open(f'data_pr//data_pr_{inn}_page_{page}.json', 'w') as f:
+                    json.dump(response, f)
+    with open('logs/logs.txt', "a", encoding='UTF8') as log:
+        log.write(f"Запрос проверок: {inn}. {response['meta']}. {datetime.datetime.now()}\n{count}")
+    return response

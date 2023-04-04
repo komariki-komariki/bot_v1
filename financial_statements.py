@@ -1,6 +1,8 @@
 import json
 from pprint import pprint
 from ofdata_api import zapros_fin
+from helper import okrug
+
 
 def fin_stat(inn):
   try:
@@ -81,7 +83,7 @@ def analiz_2(inn):
           reporting_last_year = (fin_data['data'][str(last_year)])
           reporting_penultimate_year = (fin_data['data'][str(penultimate_year)])
           if '1530' in fin_data['data'][str(last_year)]:
-            future_earnings = fin_data['data']['1530']
+            future_earnings = fin_data['data'][str(last_year)]['1530']
           else:
             future_earnings = 0
           if '1300' in fin_data['data'][str(last_year)]:
@@ -124,30 +126,30 @@ def analiz_2(inn):
           else:
             penultimate_profit = 'СВЕДЕНИЯ ОТСУТСТВУЮТ'
           if reporting_last_year['1600'] < reporting_penultimate_year['1600']:
-            balance_change = f'снижение на {reporting_penultimate_year["1600"] - reporting_last_year["1600"]} рублей'
+            balance_change = f'снижение на {okrug(reporting_penultimate_year["1600"] - reporting_last_year["1600"])} рублей'
           elif reporting_last_year['1600'] == reporting_penultimate_year['1600']:
             balance_change = 'изменений нет'
           elif reporting_last_year["1600"] > reporting_penultimate_year["1600"]:
-            balance_change = f'рост на {reporting_last_year["1600"] - reporting_penultimate_year["1600"]} рублей'
+            balance_change = f'рост на {okrug(reporting_last_year["1600"] - reporting_penultimate_year["1600"])} рублей'
           if reporting_last_year["2110"] < reporting_penultimate_year["2110"]:
-            revenue_change = f'снижение на {reporting_penultimate_year["2110"] - reporting_last_year["2110"]} рублей'
+            revenue_change = f'снижение на {okrug(reporting_penultimate_year["2110"] - reporting_last_year["2110"])} рублей'
           elif reporting_last_year["2110"] == reporting_penultimate_year["2110"]:
             revenue_change = 'изменений нет'
           elif reporting_last_year["2110"] > reporting_penultimate_year["2110"]:
-            revenue_change = f'рост на {reporting_last_year["2110"] - reporting_penultimate_year["2110"]} рублей'
+            revenue_change = f'рост на {okrug(reporting_last_year["2110"] - reporting_penultimate_year["2110"])} рублей'
           if reporting_last_year["2400"] < reporting_penultimate_year["2400"]:
-            profit_change = f'снижение на {reporting_penultimate_year["2400"] - reporting_last_year["2400"]} рублей'
+            profit_change = f'снижение на {okrug(reporting_penultimate_year["2400"] - reporting_last_year["2400"])} рублей'
           elif reporting_last_year["2400"] == reporting_penultimate_year["2400"]:
             profit_change = 'изменений нет'
           elif reporting_last_year["2400"] > reporting_penultimate_year["2400"]:
-            profit_change = f'рост на {reporting_last_year["2400"] - reporting_penultimate_year["2400"]} рублей'
+            profit_change = f'рост на {okrug(reporting_last_year["2400"] - reporting_penultimate_year["2400"])} рублей'
           if future_earnings + capital_reserves < 0:
             analiza = 'У компании отсутствует собственный капитал.\nСумма строк "капитал и резервы" и "доходы будущих периодов" последнего опубликованного баланса меньше 0. Это означает, что в отчетном году компания была "фундаментально" убыточна, то есть на покрытие убытков она использовала весь собственный капитал.'
           else:
             analiza = ''
           return {
-            'fin': f'Финансы на конец {last_year} года:\nБаланс - {balance} рублей;\nВыручка - {revenue} '
-                   f'рублей;\n{rezult} - {profit} рублей.\n'
+            'fin': f'Финансы на конец {last_year} года:\nБаланс - {okrug(balance)} рублей;\nВыручка - {okrug(revenue)} '
+                   f'рублей;\n{rezult} - {okrug(profit)} рублей.\n'
                    f'\nИзменения по отношению к {penultimate_year} году:\nБаланс: '
                    f'{balance_change};\nВыручка: {revenue_change};\nЧистая '
                    f'прибыль: {profit_change}.\n{analiza}\n'
@@ -163,8 +165,8 @@ def analiz_2(inn):
       return {'fin': f'ОШИБКА: {str(e)}'}
 
 # zapros_fin('5262351728')
-# pprint(analiz_2('4714004270'))
+# pprint(analiz_2('7715430318'))
 
 # with open('data_fin//data_4714004270.json', 'r') as f:
 #   fin_data = json.load(f)
-#   pprint(fin_data)
+#   pprint(fin_data['data']['2021'])

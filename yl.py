@@ -10,8 +10,9 @@ from fl_oop import physical
 from sendmail import sendmail
 from fssp import fssp
 from who import domain_data
-from financial_statements import fin_stat
+from financial_statements import fin_stat, analiz_2
 from proverki import pages
+from helper import okrug, razdel
 
 found_dictonary = {}
 founder_fl_list = []
@@ -198,8 +199,8 @@ class Ul:
                 if len(self.nalogs['СведУпл']) > 0:
                     for x in self.nalogs['СведУпл']:
                         if x["Сумма"] != 0:
-                            nalogs_list.append(f'\n- {x["Наим"]}: {x["Сумма"]} рублей;')
-                    nalogs_list.append(f'\n- Всего уплачено: {self.nalogs["СумУпл"]} рублей.')
+                            nalogs_list.append(f'\n- {x["Наим"]}: {okrug(x["Сумма"])} рублей;')
+                    nalogs_list.append(f'\n- Всего уплачено: {okrug(float(self.nalogs["СумУпл"]))} рублей.')
                     if self.nalogs['СумНедоим'] is None:
                         nalogs_list.append('\n- Сведения о недоимках отсутствуют.')
                     else:
@@ -593,7 +594,7 @@ class Ul:
         if len(self.authorized_capital) == 0:
             capital = 'Уставный капитал отсутствует'
         else:
-            capital = f'{self.authorized_capital["Тип"].capitalize()} {self.authorized_capital["Сумма"]} рублей'
+            capital = f'{self.authorized_capital["Тип"].capitalize()} {razdel(self.authorized_capital["Сумма"])} рублей'
         for k, v in found_dictonary.items():
             if len(v) > 0:
                 founder_fl_list.append(k)
@@ -692,13 +693,13 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
         osn = orgs.union_foo()
         if len(inn) == 10:
             sp = fssp(inn)
-            fin = fin_stat(inn)
+            fin = analiz_2(inn)
         else:
             sp = {'fssp': 'Автоматический запрос невозможен'}
             fin = {'fin': 'Сведения отсутствуют'}
         if type_zakl == 'employer':
             svod = osn | sp | fin | prov
-            word_foo(svod, type_zakl)
+            # word_foo(svod, type_zakl)
         if type_zakl == 'score' or 'counter' or 'ekv':
             if len(founder_fl_list) > 0:
                 fl = physical(founder_fl_list)
@@ -707,7 +708,7 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
                                 'uchastie': 'Учредители организации в иных действующих юридических'
                                             ' лицах участия не принимают'
                             }
-        svod = osn | fl | sp | fin | prov
+            svod = osn | fl | sp | fin | prov
         # word_foo(svod, type_zakl)
         sendmail(word_foo(svod, type_zakl), adress)
         remove_data('data_json_files')
@@ -724,7 +725,7 @@ def zakl(inn, type_zakl,adress): #Принимает 3 строки: инн и �
 
 
 
-# zakl('5262351728', 'employer', 'komaroff.ilya.s@gmail.com')
+# zakl('7710630056', 'employer', 'komaroff.ilya.s@gmail.com')
 # zakl('6025040052', 'employer', 'adr')
 # zapros('5262351728')
 # a = instance('data_json_files/data_5262351728.json')

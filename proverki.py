@@ -78,7 +78,7 @@ def pages(inn):
     except Exception as e:
         return {'proverki': f'ОШИБКА: {str(e)}'}
 
-# # zapros_pr('7727197296')
+# zapros_pr('7710630056')
 # from pprint import pprint
 # with open(f'data_pr//data_pr_7727197296_page_1.json', 'r') as f:
 #     json_file = json.load(f)
@@ -87,4 +87,4 @@ def pages(inn):
 #     else:
 #         print('not found')
 #
-# print(pages('5262351728'))
+# print(pages('7710630056'))
